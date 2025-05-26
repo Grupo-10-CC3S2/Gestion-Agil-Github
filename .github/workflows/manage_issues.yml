@@ -8,8 +8,18 @@ jobs:
   automate-project-columns:
     runs-on: ubuntu-latest
     steps:
-      - uses: alex-page/github-project-automation-plus@v0.8.3
-        with:
-          project: Devops-agile
-          column: In progress
-          repo-token: ${{ secrets.PAT_PROJECT }}
+      - name: Move PR to 'In Progress' in new Projects
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_PROJECT }}
+          PROJECT_ID: PVT_kwDODKvGH84A5gwC
+          FIELD_ID: 47fc9ee4
+          OPTION_ID: ${{ github.event.pull_request.node_id }}
+          ITEM_ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          curl -X POST -H "Authorization: bearer $GITHUB_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "query": "mutation { updateProjectV2ItemFieldValue(input: {projectId: \"'$PROJECT_ID'\", itemId: \"'$ITEM_ID'\", fieldId: \"'$FIELD_ID'\", value: { singleSelectOptionId: \"'$OPTION_ID'\" } }) { projectV2Item { id } } }"
+          }' https://api.github.com/graphql
+
+        
